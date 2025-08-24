@@ -1,0 +1,31 @@
+<?php
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user = $_POST['username'];
+    $pass = $_POST['password'];
+
+    // Cek user & pass (sebaiknya ambil dari DB)
+    if ($user == "admin" && $pass == "passwordku") {
+        // Generate OTP
+        $otp = rand(100000, 999999);
+        $_SESSION['pending_admin'] = $user;
+        $_SESSION['otp'] = $otp;
+
+        // Kirim OTP via email (contoh Gmail)
+        mail("youremail@gmail.com", "Kode OTP Admin Zerropedia", "Kode OTP Anda: $otp");
+
+        header("Location: otp_verify.html");
+        exit;
+    } else {
+        echo "Login gagal!";
+    }
+}
+?>
+
+<form method="POST">
+  <h2>Login Admin</h2>
+  <input type="text" name="username" placeholder="Username"><br><br>
+  <input type="password" name="password" placeholder="Password"><br><br>
+  <button type="submit">Login</button>
+</form>

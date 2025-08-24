@@ -1,0 +1,17 @@
+<?php
+$conn = new mysqli("localhost", "root", "", "zerropedia");
+
+$id = $_GET['id'];
+
+// Update status
+$conn->query("UPDATE deposits SET status='confirmed' WHERE id='$id'");
+
+// Tambahkan saldo user
+$result = $conn->query("SELECT * FROM deposits WHERE id='$id'");
+$row = $result->fetch_assoc();
+$username = $row['username'];
+$amount   = $row['amount'];
+
+$conn->query("UPDATE users SET saldo = saldo + $amount WHERE username='$username'");
+
+echo "Deposit user $username sebesar Rp$amount sudah dikonfirmasi.";

@@ -1,0 +1,67 @@
+<?php
+session_start();
+$koneksi = new mysqli("localhost", "root", "", "zerropedia");
+
+// Cek login user (contoh sederhana)
+if (!isset($_SESSION['user_id'])) {
+    echo "Silakan login terlebih dahulu!";
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user_id = $_SESSION['user_id'];
+    $metode  = $_POST['metode'];
+    $jumlah  = intval($_POST['jumlah']);
+
+    // Validasi nominal minimal 10.000
+    if ($jumlah < 10000) {
+        echo "<script>alert('Minimal deposit Rp 10.000!'); window.location='deposit2.html';</script>";
+        exit;
+    }
+
+    // Nomor tujuan tetap (sesuai permintaan)
+    $nomor_tujuan = "089677040178";
+
+    // Simpan ke database
+    $stmt = $koneksi->prepare("INSERT INTO deposit (user_id, metode, nomor_tujuan, jumlah, status) VALUES (?,?,?,?, 'pending')");
+    $stmt->bind_param("isss", $user_id, $metode, $nomor_tujuan, $jumlah);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Deposit berhasil diajukan. Tunggu konfirmasi admin!'); window.location='deposit2.html';</script>";
+    } else {
+        echo "Gagal: " . $stmt->error;
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Deposit | Zerropedia</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; text-align:center; padding:30px; }
+    .deposit-box { background:#fff; padding:20px; max-width:400px; margin:auto; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,.1); }
+    select, input, button { padding:10px; margin:10px 0; width:90%; border-radius:5px; border:1px solid #ccc; }
+    button { background:#4CAF50; color:#fff; cursor:pointer; }
+    button:hover { background:#45a049; }
+  </style>
+</head>
+<body>
+  <div class="deposit-box">
+    <h2>Deposit Saldo</h2>
+    <form method="POST">
+      <label for="jumlah">Nominal Deposit (Minimal 10.000):</label><br>
+      <input type="number" name="jumlah" min="10000" required><br>
+
+      <label for="metode">Pilih Metode:</label><br>
+      <select name="metode" required>
+        <option value="DANA">DANA - 089677040178</option>
+        <option value="GOPAY">GOPAY - 089677040178</option>
+      </select><br>
+
+      <button type="submit">Ajukan Deposit</button>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<?php
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $input_otp = $_POST['otp'];
+
+    if ($input_otp == $_SESSION['otp']) {
+        $_SESSION['admin'] = $_SESSION['pending_admin'];
+        unset($_SESSION['pending_admin']);
+        unset($_SESSION['otp']);
+        header("Location: admin.php");
+        exit;
+    } else {
+        echo "Kode OTP salah!";
+    }
+}
+?>
+
+<form method="POST">
+  <h2>Verifikasi OTP</h2>
+  <input type="text" name="otp" placeholder="Masukkan kode OTP" required><br><br>
+  <button type="submit">Verifikasi</button>
+</form>
